@@ -6,37 +6,22 @@ const skipColumns = {
 };
 
 const dataColumns = [
-    'SOFA_score', 
-    // Intubated
-    'Intubation_flag', 
-    // Sedation
-    'RASS_score',
-    'GCS_eye_opening', 'GCS_motor_response', 'GCS_verbal_response',
-    // Lung injury severity
-    'PaO2FIO2_ratio', 'ABG_PaO2', 
-    'FiO2', 'PEEP', 'Oxygen_saturation', 
-    'Plateau_Pressure', 'Lung_Compliance', 'ECMO_flag',
-    // Hemodynamics/shock
-    'Norepinephrine_flag', 
-    'Norepinephrine_rate', 'Mean_arterial_pressure',
-    'Systolic_blood_pressure',
-    'Diastolic_blood_pressure',
-    'Lactic_acid', 'Hemoglobin', 
-    'ABG_pH', 
-    'ABG_PaCO2', 
-    'Bicarbonate', 
-    // Renal
-    'CRRT_flag', 'Hemodialysis_flag', 'Creatinine', 'Urine_output', 
-    // Inflammatory biomarkers
-    'WBC_count', 'Neutrophils', 'Platelets', 'Procalcitonin', 'CRP',
-    'D_dimer', 'LDH', 'Ferritin', 
-    'Bilirubin',  'Albumin', 'Lymphocytes',
-    // Vitals
-    'Temperature', 
-    'Heart_rate', 
-    'Respiratory_rate',
-    // Instability
-    'Respiratory_rate_changes', 'PEEP_changes', 'FiO2_changes'
+       'recipient_age', 'fev1_fvc', 'fev1p',
+       'fvcp', 'delta_fvc_from_previous', 'delta_fev1_from_previous',
+       'ALBUMIN', 'TOTAL PROTEIN', 'SODIUM', 'GLUCOSE', 'CREATININE', 'CO2',
+       'CHLORIDE', 'CALCIUM', 'BLOOD UREA NITROGEN', 'ALKALINE PHOSPHATASE',
+       'ALT', 'POTASSIUM', 'AST', 'GFR', 'TOTAL BILIRUBIN', 'ANION GAP',
+       'ABSOLUTE BASOPHILS', 'ABSOLUTE EOSINOPHILS', 'ABSOLUTE LYMPHOCYTES',
+       'ABSOLUTE MONOCYTES', 'ABSOLUTE NEUTROPHILS', 'EOSINOPHILS %', 'HCT',
+       'HEMOGLOBIN', 'LYMPHOCYTES %', 'MCH', 'MCHC', 'MCV', 'MONOCYTES %',
+       'MPV', 'NEUTROPHILS %', 'PLATELET COUNT', 'RDW', 'RED BLOOD CELL COUNT',
+       'WHITE BLOOD CELLS', 'BMI', 'BP DIASTOLIC', 'BP SYSTOLIC', 'PULSE',
+       'SP02', 'TEMPERATURE', 'fev1_scaled', 'fvc_scaled',
+       'pseudoslope_fev1_winsorized', 'pseudoslope_fvc_winsorized',
+       'positive_dsa', 'donor_risk',
+       'cmv_donor', 'recipient_cmv', 'donor_ebv', 'recipient_ebv',
+       'age', 'pgd_t0', 'pgd_t24', 'pgd_t48',
+       'pgd_t72', 'clad', 'survival_status', 'days_tx'
 ];
 
 const columnNames = {
@@ -741,7 +726,7 @@ const onTrajectoryMouseLeave = function(e) {
 };
 
 const showDistribution = function(column) {
-    let hist = d3.select(".distributions")
+        let hist = d3.select(".distributions")
         .append("svg")
             .attr("width", histWidth + histMargin.left + histMargin.right)
             .attr("height", histHeight + histMargin.top + histMargin.bottom)
