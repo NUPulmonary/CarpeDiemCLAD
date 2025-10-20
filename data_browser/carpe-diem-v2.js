@@ -108,7 +108,7 @@ let distributionRanges = {};
 const colorUmap = function(column) {
     let gradient = ["#ffcbad", "#6b2904"];
 
-    d3.select(".sofa-scale").classed("invisible", true);
+    d3.select(".scale").classed("invisible", true);
 
     let colorScale;
     if (column == "clusters") {
@@ -116,7 +116,7 @@ const colorUmap = function(column) {
             .domain(Object.keys(tab20))
             .range(tab20);
     } else {
-        d3.select(".sofa-scale")
+        d3.select(".scale")
             .classed("invisible", false)
             .style("width", umapWidth + "px")
             .style("margin-left", margin.left + "px")
@@ -135,8 +135,8 @@ const colorUmap = function(column) {
             .domain(range)
             .range(gradient);
 
-        d3.selectAll(".sofa-scale div").remove();
-        d3.select(".sofa-scale")
+        d3.selectAll(".scale div").remove();
+        d3.select(".scale")
             .selectAll("tick")
             .data(d3.zip(ticks, tickPositions))
             .enter()
