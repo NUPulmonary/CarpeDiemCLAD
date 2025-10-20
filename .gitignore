@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# JS dependencies
+data_browser/d3.v7.min.js
+data_browser/pako_inflate.min.js
+
+# Input data
+data_browser/biopsy_embeddings.csv.gz
