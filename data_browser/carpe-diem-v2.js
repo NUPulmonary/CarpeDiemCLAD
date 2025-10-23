@@ -79,8 +79,8 @@ let umap;
 let umapX;
 let umapY;
 
-let trajectoriesX;
-let trajectoryY;
+let xScale;
+let yScale;
 
 let currentPoint;
 
@@ -346,14 +346,16 @@ function showTrajectory(d) {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Set up scales
-    const xScale = d3.scaleTime()
+    xScale = d3.scaleTime()
         .domain(d3.extent(sortedBiopsies, d => d.parsedDate))
         .range([0, width]);
     
-    const yScale = d3.scaleLinear()
+    yScale = d3.scaleLinear()
         .domain([0, d3.max(sortedBiopsies, d => d.fev1_scaled) * 1.1])
         .range([height, 0]);
     
+    d = [sortedBiopsies]
+    svg.datum(d);
     // Create line generator
     const line = d3.line()
         .x(d => xScale(d.parsedDate))
@@ -397,7 +399,7 @@ function showTrajectory(d) {
         .append("circle")
         .attr("cx", d => xScale(d.parsedDate))
         .attr("cy", d => yScale(d.fev1_scaled))
-        .attr("r", 5)
+        .attr("r", 2.5)
         .attr("fill", "steelblue");
     
     // Add title
@@ -408,7 +410,6 @@ function showTrajectory(d) {
         .style("font-size", "16px")
         .style("font-weight", "bold")
         .text(`Patient ${patientID} - FEV1 Trajectory`);
-
     showTrajectoryUmap(sortedBiopsies);
 };
 
@@ -461,7 +462,6 @@ function showTrajectoryUmap(biopsies) {
     if (showingTrends) {
         showTrends(d);
     }
-
     d3.selectAll(".trajectory svg")
         .on("mousemove", onTrajectoryMouseMove)
         .on("mouseleave", onTrajectoryMouseLeave);
@@ -477,14 +477,19 @@ const hideTrajectory = function () {
         }
 };
 
-const onTrajectoryMouseMove = function (e, d) {
-    console.log('data point:', d);
-    let x = trajectoriesX[d[0]];
+const onTrajectoryMouseMove = function (e) {
+    let svg = e.target;
+    while (svg.nodeName != "svg" && svg.parentNode) {
+        svg = svg.parentNode;
+    }
+
+    d = d3.select(svg).select("g").datum();
+
     let mouseX = d3.pointer(e, this)[0] - margin.left;
 
     let bestPoint = [];
-    d[1].forEach(function (point) {
-        let pointX = x(point.ICU_day);
+    d[0].forEach(function (point) {
+        let pointX = xScale(point.parsedDate);
         let dist = Math.abs(pointX - mouseX);
         if (bestPoint.length == 0) {
             bestPoint.push(dist);
@@ -500,16 +505,13 @@ const onTrajectoryMouseMove = function (e, d) {
     }
     let color = cladColor(point.clad);
     color = color.substr(0, 7);
-    let svg = e.target;
-    while (svg.nodeName != "svg" && svg.parentNode) {
-        svg = svg.parentNode;
-    }
 
     d3.select(svg).selectAll(".day-highlight").remove();
+
     d3.select(svg).append("circle")
         .classed("day-highlight", true)
-        .attr("cx", x(+point.ICU_day) + margin.left)
-        .attr("cy", trajectoryY(+point.fev1_score) + margin.top)
+        .attr("cx", xScale(+point.parsedDate) + margin.left)
+        .attr("cy", yScale(+point.fev1_scaled) + margin.top)
         .attr("r", 5)
         .style("fill", color);
 
@@ -810,13 +812,12 @@ const onLoad = function (d) {
         if (result != 0) {
             return result;
         }
-        result = a.ICU_stay - b.ICU_stay;
+        result = a.serial_biopsy - b.serial_biopsy;
         if (result != 0) {
             return result;
         }
-        return a.ICU_day - b.ICU_day;
+        return a.serial_biopsy - b.serial_biopsy;
     });
-
     drawUmap();
     addPatients();
     showDistributions();
