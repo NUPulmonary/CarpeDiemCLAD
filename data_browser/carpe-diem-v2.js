@@ -311,125 +311,115 @@ const selectTrajectory = function (d) {
 };
 
 function showTrajectory(d) {
-  let clad_status_num = d[1][0].clad;
-  let color = cladColor(clad_status_num);
-  let clad_status_str = clad_status_num == "1" || clad_status_num == 1 ? "CLAD" : "No CLAD";
-  let patientTitle = "Patient " + d[0] + " <small style='color:" + color + "'>(" + clad_status_str + ")</small>";
-  d3.select(".trajectory-title")
-       .classed("invisible", false)
-       .select(".title")
-          .html(patientTitle);
-  d3.select(".trajectory-placeholder").classed("hidden", true);
-  const patientID = d[0];
-  const biopsies = d[1];
-  
-  const sortedBiopsies = biopsies.slice().sort((a, b) => a.serial_biopsy - b.serial_biopsy);
-  
-  // parse dates
-  sortedBiopsies.forEach(d => {
-    if (d.biopsy_date instanceof Date) {
-      d.parsedDate = d.biopsy_date;
-    } else if (typeof d.biopsy_date === 'string') {
-      d.parsedDate = new Date(d.biopsy_date);
-    } else {
-      d.parsedDate = new Date(d.biopsy_date);
-    }
-  });
-  
-  const validBiopsies = sortedBiopsies.filter(d => 
-    d.parsedDate && !isNaN(d.parsedDate) && 
-    d.fev1_scaled != null && !isNaN(d.fev1_scaled)
-  );
-  
-  if (validBiopsies.length === 0) {
-    console.error("No valid data points to plot");
-    return;
-  }
+    let clad_status_num = d[1][0].clad;
+    let color = cladColor(clad_status_num);
+    let clad_status_str = clad_status_num == "1" || clad_status_num == 1 ? "CLAD" : "No CLAD";
+    let patientTitle = "Patient " + d[0] + " <small style='color:" + color + "'>(" + clad_status_str + ")</small>";
+    d3.select(".trajectory-title")
+        .classed("invisible", false)
+        .select(".title")
+            .html(patientTitle);
+    d3.select(".trajectory-placeholder").classed("hidden", true);
+    const patientID = d[0];
+    const biopsies = d[1];
+    
+    const sortedBiopsies = biopsies.slice().sort((a, b) => a.serial_biopsy - b.serial_biopsy);
+    
+    // parse dates
+    sortedBiopsies.forEach(d => {
+        if (d.biopsy_date instanceof Date) {
+        d.parsedDate = d.biopsy_date;
+        } else if (typeof d.biopsy_date === 'string') {
+        d.parsedDate = new Date(d.biopsy_date);
+        } else {
+        d.parsedDate = new Date(d.biopsy_date);
+        }
+    });
 
-  d3.select(".trajectory").selectAll("*").remove();
-  
-  const svg = d3.select(".trajectory")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+    d3.select(".trajectory").selectAll("*").remove();
+    
+    const svg = d3.select(".trajectory")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Set up scales
-  const xScale = d3.scaleTime()
-    .domain(d3.extent(validBiopsies, d => d.parsedDate))
-    .range([0, width]);
-  
-  const yScale = d3.scaleLinear()
-    .domain([0, d3.max(validBiopsies, d => d.fev1_scaled) * 1.1])
-    .range([height, 0]);
-  
-  // Create line generator
-  const line = d3.line()
-    .x(d => xScale(d.parsedDate))
-    .y(d => yScale(d.fev1_scaled));
-  
-  const formatDate = d3.timeFormat("%b %y");
-  // Add X axis 
-  // Add X axis with formatted dates
-  svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale).tickFormat(formatDate))
-    .selectAll("text")
-    .style("text-anchor", "end")
-    .attr("dx", "-.8em")
-    .attr("dy", ".15em")
-    .attr("transform", "rotate(-45)");
-  
-  // Add Y axis
-  svg.append("g")
-    .call(d3.axisLeft(yScale))
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -height / 2)
-    .attr("y", -45)
-    .attr("fill", "black")
-    .style("font-size", "14px")
-    .text("FEV1 Scaled");
-  
-  // Add the line
-  svg.append("path")
-    .datum(validBiopsies)
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 2)
-    .attr("d", line);
-  
-  // Add points
-  svg.selectAll("circle")
-    .data(validBiopsies)
-    .enter()
-    .append("circle")
-    .attr("cx", d => xScale(d.parsedDate))
-    .attr("cy", d => yScale(d.fev1_scaled))
-    .attr("r", 5)
-    .attr("fill", "steelblue");
-  
-  // Add title
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", -10)
-    .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .style("font-weight", "bold")
-    .text(`Patient ${patientID} - FEV1 Trajectory`);
+    // Set up scales
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(sortedBiopsies, d => d.parsedDate))
+        .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(sortedBiopsies, d => d.fev1_scaled) * 1.1])
+        .range([height, 0]);
+    
+    // Create line generator
+    const line = d3.line()
+        .x(d => xScale(d.parsedDate))
+        .y(d => yScale(d.fev1_scaled));
+    
+    const formatDate = d3.timeFormat("%b %y");
+    // Add X axis 
+    // Add X axis with formatted dates
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(xScale).tickFormat(formatDate))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)");
+    
+    // Add Y axis
+    svg.append("g")
+        .call(d3.axisLeft(yScale))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -45)
+        .attr("fill", "black")
+        .style("font-size", "14px")
+        .text("FEV1 Scaled");
+    
+    // Add the line
+    svg.append("path")
+        .datum(sortedBiopsies)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2)
+        .attr("d", line);
+    
+    // Add points
+    svg.selectAll("circle")
+        .data(sortedBiopsies)
+        .enter()
+        .append("circle")
+        .attr("cx", d => xScale(d.parsedDate))
+        .attr("cy", d => yScale(d.fev1_scaled))
+        .attr("r", 5)
+        .attr("fill", "steelblue");
+    
+    // Add title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text(`Patient ${patientID} - FEV1 Trajectory`);
 
-  showTrajectoryUmap(validBiopsies);
+    showTrajectoryUmap(sortedBiopsies);
 };
 
 function showTrajectoryUmap(biopsies) {
 
     umap.selectAll(".patient-overlay").remove();
-    biopsies.forEach(function(biopsy) {
-        umap.append("g")
+
+    umap.append("g")
             .classed("patient-overlay", true)
             .selectAll("selected")
-            .data(biopsy)
+            .data(biopsies)
             .enter()
             .append("circle")
                 .attr("cx", function(d) { return umapX(+d.umap1); } )
@@ -438,35 +428,36 @@ function showTrajectoryUmap(biopsies) {
                 .style("fill", "none")
                 .style("stroke", "black")
                 .style("stroke-width", 1.5);
-        let arrows = [];
-        for (let i = 0; i < biopsy.length - 1; i++) {
-            let x1 = umapX(biopsy[i].umap1);
-            let x2 = umapX(biopsy[i + 1].umap1);
-            let y1 = umapY(biopsy[i].umap2);
-            let y2 = umapY(biopsy[i + 1].umap2);
-            let len = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
-            if (len < 10) {
-                continue;
-            }
-            let w = 4 * (x2 - x1) / len;
-            let arrowX = x2 - w;
-            let arrowY = y2 - Math.sqrt(16 - w**2) * Math.sign(y2 - y1);
-            arrows.push([x1, y1, arrowX, arrowY]);
+    let arrows = [];
+    for (let i = 0; i < biopsies.length - 1; i++) {
+        let x1 = umapX(biopsies[i].umap1);
+        let x2 = umapX(biopsies[i + 1].umap1);
+        let y1 = umapY(biopsies[i].umap2);
+        let y2 = umapY(biopsies[i + 1].umap2);
+        let len = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
+        if (len < 10) {
+            continue;
         }
-        umap.append("g")
-            .classed("patient-overlay", true)
-            .selectAll("arrows")
-            .data(arrows)
-            .enter()
-            .append("line")
-                .attr("x1", function(d) { return d[0] } )
-                .attr("y1", function(d) { return d[1] } )
-                .attr("x2", function(d) { return d[2] } )
-                .attr("y2", function(d) { return d[3] } )
-                .style("stroke", "black")
-                .style("stroke-width", 1.2)
-                .attr("marker-end", "url(#triangle)");
-    });
+        let w = 4 * (x2 - x1) / len;
+        let arrowX = x2 - w;
+        let arrowY = y2 - Math.sqrt(16 - w**2) * Math.sign(y2 - y1);
+        arrows.push([x1, y1, arrowX, arrowY]);
+    }
+
+    umap.append("g")
+        .classed("patient-overlay", true)
+        .selectAll("arrows")
+        .data(arrows)
+        .enter()
+        .append("line")
+            .attr("x1", function(d) { return d[0] } )
+            .attr("y1", function(d) { return d[1] } )
+            .attr("x2", function(d) { return d[2] } )
+            .attr("y2", function(d) { return d[3] } )
+            .style("stroke", "black")
+            .style("stroke-width", 1.2)
+            .attr("marker-end", "url(#triangle)");
+
     if (showingTrends) {
         showTrends(d);
     }
@@ -474,8 +465,7 @@ function showTrajectoryUmap(biopsies) {
     d3.selectAll(".trajectory svg")
         .on("mousemove", onTrajectoryMouseMove)
         .on("mouseleave", onTrajectoryMouseLeave);
-
-}
+};
 
 const hideTrajectory = function () {
         d3.select(".trajectory-title").classed("invisible", true);
@@ -488,6 +478,7 @@ const hideTrajectory = function () {
 };
 
 const onTrajectoryMouseMove = function (e, d) {
+    console.log('data point:', d);
     let x = trajectoriesX[d[0]];
     let mouseX = d3.pointer(e, this)[0] - margin.left;
 
