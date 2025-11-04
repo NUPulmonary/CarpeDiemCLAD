@@ -482,7 +482,6 @@ const onTrajectoryMouseMove = function (e) {
     while (svg.nodeName != "svg" && svg.parentNode) {
         svg = svg.parentNode;
     }
-
     d = d3.select(svg).select("g").datum();
     patient = d[0];
     biopsies = d[1];
@@ -508,7 +507,6 @@ const onTrajectoryMouseMove = function (e) {
     color = color.substr(0, 7);
 
     d3.select(svg).selectAll(".day-highlight").remove();
-
     d3.select(svg).append("circle")
         .classed("day-highlight", true)
         .attr("cx", xScale(+point.parsedDate) + margin.left)
@@ -769,7 +767,7 @@ const showPointOnDistributions = function (point) {
             if (showingTrends) {
                 let i = 0;
                 for (; i < selected[1].length; i++) {
-                    if (selected[1][i][""] === point[""]) {
+                    if (selected[1][i]["slide_name_clean"] === point["slide_name_clean"]) {
                         break;
                     }
                 }
