@@ -354,7 +354,7 @@ function showTrajectory(d) {
         .domain([0, d3.max(sortedBiopsies, d => d.fev1_scaled) * 1.1])
         .range([height, 0]);
     
-    d = [sortedBiopsies]
+    d = [patientID, sortedBiopsies]
     svg.datum(d);
     // Create line generator
     const line = d3.line()
@@ -410,11 +410,11 @@ function showTrajectory(d) {
         .style("font-size", "16px")
         .style("font-weight", "bold")
         .text(`Patient ${patientID} - FEV1 Trajectory`);
-    showTrajectoryUmap(sortedBiopsies);
+    showTrajectoryUmap(d);
 };
 
-function showTrajectoryUmap(biopsies) {
-
+function showTrajectoryUmap(d) {
+    biopsies = d[1];
     umap.selectAll(".patient-overlay").remove();
 
     umap.append("g")
@@ -484,11 +484,12 @@ const onTrajectoryMouseMove = function (e) {
     }
 
     d = d3.select(svg).select("g").datum();
-
+    patient = d[0];
+    biopsies = d[1];
     let mouseX = d3.pointer(e, this)[0] - margin.left;
 
     let bestPoint = [];
-    d[0].forEach(function (point) {
+    biopsies.forEach(function (point) {
         let pointX = xScale(point.parsedDate);
         let dist = Math.abs(pointX - mouseX);
         if (bestPoint.length == 0) {
