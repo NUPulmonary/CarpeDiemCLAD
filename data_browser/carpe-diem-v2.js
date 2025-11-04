@@ -322,11 +322,9 @@ function showTrajectory(d) {
     d3.select(".trajectory-placeholder").classed("hidden", true);
     const patientID = d[0];
     const biopsies = d[1];
-    
-    const sortedBiopsies = biopsies.slice().sort((a, b) => a.serial_biopsy - b.serial_biopsy);
-    
+        
     // parse dates
-    sortedBiopsies.forEach(d => {
+    biopsies.forEach(d => {
         if (d.biopsy_date instanceof Date) {
         d.parsedDate = d.biopsy_date;
         } else if (typeof d.biopsy_date === 'string') {
@@ -347,14 +345,14 @@ function showTrajectory(d) {
 
     // Set up scales
     xScale = d3.scaleTime()
-        .domain(d3.extent(sortedBiopsies, d => d.parsedDate))
+        .domain(d3.extent(biopsies, d => d.parsedDate))
         .range([0, width]);
     
     yScale = d3.scaleLinear()
-        .domain([0, d3.max(sortedBiopsies, d => d.fev1_scaled) * 1.1])
+        .domain([0, d3.max(biopsies, d => d.fev1_scaled) * 1.1])
         .range([height, 0]);
     
-    d = [patientID, sortedBiopsies]
+    d = [patientID, biopsies]
     svg.datum(d);
     // Create line generator
     const line = d3.line()
@@ -386,7 +384,7 @@ function showTrajectory(d) {
     
     // Add the line
     svg.append("path")
-        .datum(sortedBiopsies)
+        .datum(biopsies)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
@@ -394,7 +392,7 @@ function showTrajectory(d) {
     
     // Add points
     svg.selectAll("circle")
-        .data(sortedBiopsies)
+        .data(biopsies)
         .enter()
         .append("circle")
         .attr("cx", d => xScale(d.parsedDate))
@@ -765,9 +763,10 @@ const showPointOnDistributions = function (point) {
         if (!isMissing || showTrends) {
             let dayX = x(+point[column]);
             if (showingTrends) {
+                debugger;
                 let i = 0;
                 for (; i < selected[1].length; i++) {
-                    if (selected[1][i]["slide_name_clean"] === point["slide_name_clean"]) {
+                    if (selected[1][i]["parsedDate"] === point["parsedDate"]) {
                         break;
                     }
                 }
